@@ -119,10 +119,12 @@ app.listen(PORT, () => {
 });
 
 const API_URL = process.env.MCP_API_URL || "https://mcp-browser-fun.anigok.com";
+const API_TOKEN = process.env.API_TOKEN;
 
 async function makeAPIRequest<T>(url: string, method: string, body?: any): Promise<T | null> {
   const headers = {
     "Content-Type": "application/json",
+    Authorization: `Bearer ${API_TOKEN}`,
   };
 
   try {
@@ -189,11 +191,10 @@ server.tool(
   "get-html-content",
   "Get HTML content.",
   {
-    account_id: z.string(),
     url: z.string().url(),
   },
-  async ({ account_id, url }) => {
-    const contentUrl = `${API_URL}/accounts/${account_id}/browser-rendering/content`;
+  async ({ url }) => {
+    const contentUrl = `${API_URL}/content`;
     const response = await makeAPIRequest<BrowserRenderingContentResponse>(contentUrl, "POST", { url });
 
     if (!response) {
@@ -209,11 +210,10 @@ server.tool(
   "get-pdf",
   "Get PDF.",
   {
-    account_id: z.string(),
     url: z.string().url(),
   },
-  async ({ account_id, url }) => {
-    const pdfUrl = `${API_URL}/accounts/${account_id}/browser-rendering/pdf`;
+  async ({ url }) => {
+    const pdfUrl = `${API_URL}/pdf`;
     const response = await makeAPIRequest<BrowserRenderingPDFResponse>(pdfUrl, "POST", { url });
 
     if (!response) {
@@ -229,12 +229,11 @@ server.tool(
   "scrape-elements",
   "Scrape elements.",
   {
-    account_id: z.string(),
     url: z.string().url(),
     selectors: z.array(z.string()),
   },
-  async ({ account_id, url, selectors }) => {
-    const scrapeUrl = `${API_URL}/accounts/${account_id}/browser-rendering/scrape`;
+  async ({ url, selectors }) => {
+    const scrapeUrl = `${API_URL}/scrape`;
     const response = await makeAPIRequest<BrowserRenderingScrapeResponse>(scrapeUrl, "POST", { url, selectors });
 
     if (!response) {
@@ -250,11 +249,10 @@ server.tool(
   "get-screenshot",
   "Get screenshot.",
   {
-    account_id: z.string(),
     url: z.string().url(),
   },
-  async ({ account_id, url }) => {
-    const screenshotUrl = `${API_URL}/accounts/${account_id}/browser-rendering/screenshot`;
+  async ({ url }) => {
+    const screenshotUrl = `${API_URL}/screenshot`;
     const response = await makeAPIRequest<BrowserRenderingScreenshotResponse>(screenshotUrl, "POST", { url });
 
     if (!response) {
@@ -270,11 +268,10 @@ server.tool(
   "get-snapshot",
   "Get HTML content and screenshot.",
   {
-    account_id: z.string(),
     url: z.string().url(),
   },
-  async ({ account_id, url }) => {
-    const snapshotUrl = `${API_URL}/accounts/${account_id}/browser-rendering/snapshot`;
+  async ({ url }) => {
+    const snapshotUrl = `${API_URL}/snapshot`;
     const response = await makeAPIRequest<BrowserRenderingSnapshotResponse>(snapshotUrl, "POST", { url });
 
     if (!response) {
@@ -290,11 +287,10 @@ server.tool(
   "get-json",
   "Get json.",
   {
-    account_id: z.string(),
     url: z.string().url(),
   },
-  async ({ account_id, url }) => {
-    const jsonUrl = `${API_URL}/accounts/${account_id}/browser-rendering/json`;
+  async ({ url }) => {
+    const jsonUrl = `${API_URL}/json`;
     const response = await makeAPIRequest<BrowserRenderingJsonResponse>(jsonUrl, "POST", { url });
 
     if (!response) {
@@ -310,11 +306,10 @@ server.tool(
   "get-links",
   "Get Links.",
   {
-    account_id: z.string(),
     url: z.string().url(),
   },
-  async ({ account_id, url }) => {
-    const linksUrl = `${API_URL}/accounts/${account_id}/browser-rendering/links`;
+  async ({ url }) => {
+    const linksUrl = `${API_URL}/links`;
     const response = await makeAPIRequest<BrowserRenderingLinksResponse>(linksUrl, "POST", { url });
 
     if (!response) {
@@ -330,11 +325,10 @@ server.tool(
   "get-markdown",
   "Get markdown.",
   {
-    account_id: z.string(),
     url: z.string().url(),
   },
-  async ({ account_id, url }) => {
-    const markdownUrl = `${API_URL}/accounts/${account_id}/browser-rendering/markdown`;
+  async ({ url }) => {
+    const markdownUrl = `${API_URL}/markdown`;
     const response = await makeAPIRequest<BrowserRenderingMarkdownResponse>(markdownUrl, "POST", { url });
 
     if (!response) {
@@ -350,12 +344,20 @@ server.tool(
   "get-accessibility-tree",
   "Get accessibility tree page.",
   {
-    account_id: z.string(),
-    url: z.string().url(),
+    url: z.string().url().optional(),
+    html: z.string().optional(),
+    root: z.string().optional(),
+    interestingOnly: z.boolean().optional(),
   },
-  async ({ account_id, url }) => {
-    const accessibilityTreeUrl = `${API_URL}/accounts/${account_id}/browser-rendering/accessibilityTree`;
-    const response = await makeAPIRequest<BrowserRenderingAccessibilityTreeResponse>(accessibilityTreeUrl, "POST", { url });
+  async ({ url, html, root, interestingOnly }) => {
+    const accessibilityTreeUrl = `${API_URL}/accessibilityTree`;
+    const body = {
+      ...(url ? { url } : {}),
+      ...(html ? { html } : {}),
+      ...(root ? { root } : {}),
+      ...(interestingOnly !== undefined ? { interestingOnly } : {}),
+    };
+    const response = await makeAPIRequest<BrowserRenderingAccessibilityTreeResponse>(accessibilityTreeUrl, "POST", body);
 
     if (!response) {
       return { content: [{ type: "text", text: "Failed to retrieve accessibility tree." }] };
@@ -370,11 +372,10 @@ server.tool(
   "crawl-websites",
   "Crawl websites.",
   {
-    account_id: z.string(),
     urls: z.array(z.string().url()),
   },
-  async ({ account_id, urls }) => {
-    const crawlUrl = `${API_URL}/accounts/${account_id}/browser-rendering/crawl`;
+  async ({ urls }) => {
+    const crawlUrl = `${API_URL}/crawl`;
     const response = await makeAPIRequest<BrowserRenderingCrawlResponse>(crawlUrl, "POST", { urls });
 
     if (!response) {

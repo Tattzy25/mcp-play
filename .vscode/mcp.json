@@ -1,0 +1,13 @@
+{
+	"servers": {
+		"my-mcp-server-c78f4cb1": {
+			"url": "https://convert.facetimefy.com/mcp",
+			"type": "http"
+		},
+		"my-mcp-server-77aa22f9": {
+			"url": "https://mcp-browser-fun.anigok.com/mcp",
+			"type": "http"
+		}
+	},
+	"inputs": []
+}
