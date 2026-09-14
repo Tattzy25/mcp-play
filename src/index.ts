@@ -1,9 +1,17 @@
 import express from "express";
+import { webcrypto } from "node:crypto";
 import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { z } from "zod";
 // Import Express types correctly
 import type { Request, Response } from "express";
+
+if (typeof globalThis.crypto === "undefined") {
+  Object.defineProperty(globalThis, "crypto", {
+    value: webcrypto,
+    configurable: true,
+  });
+}
 
 // Enable debug logging to see what's happening
 process.env.DEBUG = "mcp:*";
@@ -46,6 +54,13 @@ app.post('/mcp', async (req: Request, res: Response) => {
   try {
     // Log incoming request for debugging
     console.log('Received request:', JSON.stringify(req.body, null, 2));
+
+    const acceptHeader = req.headers.accept;
+    if (!acceptHeader) {
+      req.headers.accept = 'application/json, text/event-stream';
+    } else if (acceptHeader.includes('application/json') && !acceptHeader.includes('text/event-stream')) {
+      req.headers.accept = `${acceptHeader}, text/event-stream`;
+    }
     
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: undefined,
