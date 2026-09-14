@@ -6,7 +6,9 @@
   "version": "1.0.0",
   "description": "browser fun",
   "scripts": {
-    "dev": "node --loader ts-node/esm src/index.ts"
+    "build": "tsc -p tsconfig.json",
+    "dev": "node --loader ts-node/esm src/index.ts",
+    "start": "node dist/index.js"
   },
   "engines": {
     "node": ">=18.0.0"
