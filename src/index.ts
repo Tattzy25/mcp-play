@@ -103,10 +103,8 @@ app.listen(PORT, () => {
   console.log(`MCP Stateless Streamable HTTP Server listening on port ${PORT}`);
 });
 
-// Base URL for the API, can be overridden by the environment variable MCP_API_URL
 const API_URL = process.env.MCP_API_URL || "https://mcp-browser-fun.anigok.com";
 
-// Helper function for making API requests
 async function makeAPIRequest<T>(url: string, method: string, body?: any): Promise<T | null> {
   const headers = {
     "Content-Type": "application/json",
